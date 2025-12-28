@@ -1,0 +1,54 @@
+function baslat(){
+    const out=document.getElementById("out");
+    const bar=document.getElementById("bar");
+    bar.style.width="0%";
+    out.textContent=">> Sistem taranıyor...\n>> Brute-force simülasyonu hazırlanıyor...\n";
+
+    let p=0;
+    let anim=setInterval(()=>{
+        p+=10;
+        bar.style.width=p+"%";
+        if(p>=100){
+            clearInterval(anim);
+            analiz();
+        }
+    },150);
+}
+
+function analiz(){
+    const pw=document.getElementById("pw").value;
+    const out=document.getElementById("out");
+
+    let charset=0;
+    let score=0;
+    let risks=[];
+
+    if(/[a-z]/.test(pw)){charset+=26; score++;} else risks.push("[!] Küçük harf yok");
+    if(/[A-Z]/.test(pw)){charset+=26; score++;} else risks.push("[!] Büyük harf yok");
+    if(/[0-9]/.test(pw)){charset+=10; score++;} else risks.push("[!] Rakam yok");
+    if(/[!@#$%^&*()_+=\-{}[\]:;"'<>,.?/]/.test(pw)){charset+=32; score++;} else risks.push("[!] Özel karakter yok");
+    if(pw.length>=8){score++;} else risks.push("[!] Şifre kısa");
+
+    let combos = Math.pow(charset, pw.length);
+    let seconds = combos / 1_000_000_000;
+
+    let time =
+        seconds < 60 ? seconds.toFixed(2)+" saniye" :
+        seconds < 3600 ? (seconds/60).toFixed(2)+" dakika" :
+        seconds < 86400 ? (seconds/3600).toFixed(2)+" saat" :
+        seconds < 31536000 ? (seconds/86400).toFixed(2)+" gün" :
+        (seconds/31536000).toFixed(2)+" yıl";
+
+    let risk, cls;
+    if(score<=2){risk="HIGH RISK"; cls="high";}
+    else if(score<=4){risk="MEDIUM RISK"; cls="medium";}
+    else{risk="LOW RISK"; cls="low";}
+
+    out.innerHTML=
+    ">> Analiz tamamlandı\n"+
+    ">> Güvenlik Seviyesi: <span class='"+cls+"'>"+risk+"</span>\n"+
+    ">> Güç Puanı: "+score+"/5\n\n"+
+    ">> Brute-force Tahmini Süre:\n"+
+    time+"\n\n"+
+    (risks.length?risks.join("\n"):"[✓] Ciddi açık bulunmadı");
+}
